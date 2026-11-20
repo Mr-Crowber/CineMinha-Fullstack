@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#180101">
+  <title>Filme - CineMinha</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="api.js"></script>
+  <script defer src="JS/filme.js"></script>
+</head>
+<body class="dynamic-movie-page">
+  <header>
+    <a href="Index.html" class="logo-link"><img src="img/CineMinha.png" alt="CineMinha" class="logo"></a>
+    <nav><a href="Index.html#cartaz">Em Cartaz</a></nav>
+  </header>
+
+  <main>
+    <section class="dynamic-movie-hero" id="movie-hero">
+      <div class="dynamic-movie-backdrop" id="movie-backdrop"></div>
+      <div class="dynamic-movie-heading">
+        <a class="dynamic-back-link" href="Index.html">‹ Voltar ao catálogo</a>
+        <span class="dynamic-eyebrow">CINEMINHA APRESENTA</span>
+        <h1 id="movie-title">Carregando filme...</h1>
+        <div class="dynamic-movie-meta" id="movie-meta"></div>
+      </div>
+    </section>
+
+    <section class="dynamic-movie-content">
+      <div class="dynamic-movie-overview">
+        <img id="movie-poster" class="dynamic-poster" alt="Pôster do filme">
+        <div>
+          <span class="dynamic-eyebrow">SOBRE O FILME</span>
+          <p id="movie-description">Buscando informações...</p>
+          <p class="dynamic-director" id="movie-director"></p>
+        </div>
+      </div>
+
+      <section class="dynamic-booking" id="booking">
+        <div class="dynamic-section-heading">
+          <div><span class="dynamic-eyebrow">PROGRAMAÇÃO</span><h2>Escolha sua sessão</h2></div>
+          <p>As sessões e os preços são publicados pela equipe na dashboard.</p>
+        </div>
+        <div id="sessions-list" class="dynamic-sessions"><p class="site-api-message">Carregando sessões...</p></div>
+
+        <div id="seat-booking" class="seat-booking" hidden>
+          <div class="dynamic-section-heading compact">
+            <div><span class="dynamic-eyebrow">MAPA DA SALA</span><h2>Selecione seus lugares</h2></div>
+            <span id="selected-session-label" class="selected-session-label"></span>
+          </div>
+          <div class="seat-legend"><span><i class="seat-legend-free"></i>Livre</span><span><i class="seat-legend-selected"></i>Selecionado</span><span><i class="seat-legend-occupied"></i>Ocupado</span></div>
+          <div class="screen-label">TELA</div>
+          <div id="seat-map" class="seat-map"></div>
+          <div id="checkout" class="dynamic-checkout" hidden>
+            <h3>Finalizar pedido</h3>
+            <div id="selected-seat-types" class="selected-seat-types"></div>
+            <div class="checkout-fields">
+              <label>Nome do cliente<input id="customer-name" type="text" maxlength="100" autocomplete="name" placeholder="Nome completo"></label>
+              <label>Forma de pagamento<select id="payment-method"><option value="">Selecione</option><option value="Pix">Pix</option><option value="Cartão de crédito">Cartão de crédito</option><option value="Cartão de débito">Cartão de débito</option></select></label>
+            </div>
+            <div class="checkout-total"><span>Total do pedido</span><strong id="checkout-total">R$ 0,00</strong></div>
+            <p class="payment-disclaimer">Esta versão registra o pedido e a forma de pagamento escolhida, mas ainda não processa pagamentos por Pix ou cartão.</p>
+            <p id="checkout-error" class="checkout-feedback is-error" role="alert"></p>
+            <p id="checkout-success" class="checkout-feedback is-success" role="status"></p>
+            <button id="buy-button" class="dynamic-buy-button" type="button">Confirmar pedido</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <footer><p>© 2026 CineMinha - Roberto L. Nieli</p></footer>
+
+  <section id="purchase-success-screen" class="purchase-success-screen" hidden aria-live="polite">
+    <div class="purchase-success-card">
+      <div class="purchase-success-check" aria-hidden="true">✓</div>
+      <span class="dynamic-eyebrow">CINEMINHA · PEDIDO REGISTRADO</span>
+      <h1>Ingresso confirmado!</h1>
+      <p class="purchase-success-description">Seu pedido foi registrado e seus assentos estão reservados.</p>
+      <div class="purchase-success-details">
+        <div><span>CÓDIGO DO PEDIDO</span><strong id="success-order-id">—</strong></div>
+        <div><span>INGRESSOS</span><strong id="success-ticket-count">—</strong></div>
+        <div><span>VALOR TOTAL</span><strong id="success-order-total">—</strong></div>
+      </div>
+      <p class="purchase-success-note">Esta versão registra o pedido, mas ainda não processa cobranças reais por Pix ou cartão.</p>
+      <a class="purchase-success-button" href="Index.html#cartaz">Voltar ao catálogo de filmes</a>
+    </div>
+  </section>
+</body>
+</html>

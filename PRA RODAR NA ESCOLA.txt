@@ -1,0 +1,417 @@
+CINEMINHA - GUIA DE INSTALACAO EM OUTRO COMPUTADOR
+==================================================
+Versao do guia: 20/11/2026
+Sistema de referencia: Windows 10/11, PowerShell e VS Code.
+
+Este documento explica como baixar o projeto do GitHub, instalar as ferramentas,
+preparar o MySQL e iniciar API, dashboard, site e aplicativo.
+
+IMPORTANTE: o CineMinha e um projeto de desenvolvimento local. A API, o MySQL,
+a dashboard, o site e o Expo precisam estar em execucao para o sistema completo
+funcionar. Nao basta abrir somente o site ou o aplicativo.
+
+--------------------------------------------------
+1. O QUE INSTALAR NO COMPUTADOR NOVO
+--------------------------------------------------
+
+Instale os seguintes programas antes de continuar:
+
+1) Git for Windows
+   https://git-scm.com/install/win
+   Necessario para baixar o projeto do GitHub e enviar alteracoes.
+
+2) Visual Studio Code
+   https://code.visualstudio.com/
+   No VS Code, instale a extensao "Live Server" para abrir o site.
+
+3) Node.js 22 LTS (inclui npm)
+   https://nodejs.org/en/download/
+   O aplicativo usa Expo SDK 57, cuja referencia de compatibilidade indica
+   Node 22.13.x. Use uma versao LTS da linha 22 para evitar incompatibilidade
+   com uma versao principal mais nova.
+
+4) .NET SDK 10
+   https://dotnet.microsoft.com/pt-br/download/dotnet/10.0
+   ATENCAO: instale o SDK, nao apenas o Runtime. A API usa TargetFramework net10.0.
+
+5) MySQL Server 8.0 ou superior
+   https://dev.mysql.com/downloads/mysql/
+   Instale tambem o MySQL Command Line Client ou o MySQL Workbench.
+   Durante a instalacao, defina e guarde a senha do usuario administrador.
+
+6) Expo Go no celular Android (opcional, para testar no aparelho)
+   Instale pela Google Play Store. O celular e o computador devem estar na
+   mesma rede Wi-Fi. A versao do Expo Go precisa ser compativel com o SDK do app.
+
+Observacao sobre iPhone: o aplicativo esta em Expo SDK 57. A documentacao atual
+informa que a versao do Expo Go distribuida pela App Store para iOS para no SDK 54.
+Para testar este projeto em iPhone, sera necessario preparar um development build
+compatível, em vez de depender do Expo Go comum.
+
+Depois de instalar, feche e abra novamente o PowerShell/VS Code e confira:
+
+    git --version
+    node -v
+    npm -v
+    dotnet --version
+
+O comando dotnet --version deve mostrar uma versao 10.x.
+O Node deve estar na linha 22.x recomendada acima.
+
+--------------------------------------------------
+2. BAIXAR O PROJETO DO GITHUB
+--------------------------------------------------
+
+Crie uma pasta para seus projetos. Exemplo:
+
+    C:\Projetos
+
+Abra o PowerShell e execute (troque pelo endereco real do repositorio):
+
+    cd C:\Projetos
+    git clone https://github.com/SEU-USUARIO/CineMinha.git
+    cd CineMinha
+
+Se o repositorio tiver outro nome, use o nome/pasta correspondente.
+
+Abra a pasta RAIZ do projeto no VS Code:
+
+    code .
+
+A estrutura esperada e semelhante a esta:
+
+    CineMinha/
+      CineMinha-Dashboard/
+      CineMinha-site/
+      CineMinha/                    (aplicativo Expo)
+      cineMinha_backend/
+        cineMinha/                  (API ASP.NET Core)
+      cinema.sql
+      cinema-seed.sql
+      .gitignore
+      README-INTEGRACAO.md
+
+Se o comando "code ." nao funcionar, abra o VS Code manualmente e use
+Arquivo > Abrir Pasta > selecione a pasta raiz CineMinha.
+
+--------------------------------------------------
+3. PREPARAR O MYSQL
+--------------------------------------------------
+
+3.1. Inicie o servico MySQL no Windows.
+     Se necessario, abra o menu Iniciar e procure "Services/Servicos".
+     Verifique se o servico MySQL80 (ou o nome configurado na instalacao)
+     esta em execucao.
+
+3.2. Abra o MySQL Command Line Client e entre com a senha de administrador.
+
+3.3. Execute o script de estrutura do banco. Ajuste o caminho caso tenha
+     clonado o projeto em outro lugar:
+
+    SOURCE C:/Projetos/CineMinha/cinema.sql;
+
+O script cria/prepara o banco "cinema", suas tabelas e as quatro salas iniciais.
+Ele foi preparado para poder ser executado novamente sem apagar os registros.
+
+3.4. Para carregar filmes de demonstracao, execute tambem:
+
+    SOURCE C:/Projetos/CineMinha/cinema-seed.sql;
+
+O arquivo seed e opcional. Se voce estiver restaurando um banco antigo com seus
+proprios filmes, sessoes e ingressos, nao precisa executar o seed de demonstracao.
+
+3.5. Recomendacao: crie um usuario exclusivo para a API, em vez de usar root.
+     Ainda no MySQL Command Line Client, execute (troque a senha de exemplo):
+
+    CREATE USER IF NOT EXISTS 'cineminha_app'@'localhost'
+      IDENTIFIED BY 'ESCOLHA_UMA_SENHA_FORTE';
+    GRANT SELECT, INSERT, UPDATE, DELETE ON cinema.*
+      TO 'cineminha_app'@'localhost';
+    FLUSH PRIVILEGES;
+
+Guarde a senha escolhida. Ela sera usada no proximo passo.
+Se preferir usar root durante o desenvolvimento, use o usuario root e a senha
+que definiu na instalacao do MySQL, mas nao publique essa senha no GitHub.
+
+--------------------------------------------------
+4. CONFIGURAR E LIGAR A API
+--------------------------------------------------
+
+A API fica na pasta:
+
+    cineMinha_backend/cineMinha
+
+4.1. Dentro dessa pasta, crie um arquivo chamado:
+
+    appsettings.Development.json
+
+Esse arquivo e local e esta incluido no .gitignore. NAO o envie ao GitHub.
+
+Cole o conteudo abaixo e altere a senha para a senha que voce criou no MySQL:
+
+    {
+      "ConnectionStrings": {
+        "DefaultConnection": "server=localhost;port=3306;database=cinema;user=cineminha_app;password=ESCOLHA_UMA_SENHA_FORTE;CharSet=utf8mb4;"
+      }
+    }
+
+Se optou por usar root, troque user=cineminha_app pelo usuario root e coloque
+a senha correspondente.
+
+NAO coloque sua senha pessoal dentro de appsettings.json, .env ou arquivos
+versionados. O appsettings.Development.json existe justamente para a configuracao
+local. O perfil http do projeto executa a API em ambiente Development.
+
+4.2. Abra um NOVO terminal no VS Code e execute:
+
+    cd C:\Projetos\CineMinha\cineMinha_backend\cineMinha
+    dotnet restore
+    dotnet run --launch-profile http
+
+Mantenha esse terminal aberto. Ele e o servidor da API.
+
+4.3. Teste no navegador:
+
+    http://localhost:5266/health
+    http://localhost:5266/swagger
+    http://localhost:5266/api/Filme
+
+A primeira URL deve responder com status "ok". Swagger mostra as rotas da API.
+A ultima URL deve retornar filmes em JSON (ou uma lista vazia se nao ha filmes).
+
+Se aparecer "Access denied for user", confira usuario/senha em
+appsettings.Development.json e se o servico MySQL esta ligado.
+
+--------------------------------------------------
+5. CONFIGURAR E LIGAR A DASHBOARD
+--------------------------------------------------
+
+A dashboard fica em:
+
+    CineMinha-Dashboard
+
+5.1. Crie o arquivo local .env copiando o exemplo:
+
+    cd C:\Projetos\CineMinha\CineMinha-Dashboard
+    Copy-Item .env.example .env
+
+5.2. Abra CineMinha-Dashboard/.env e confira se esta assim:
+
+    VITE_API_URL=http://localhost:5266
+
+5.3. Instale as dependencias e inicie a dashboard:
+
+    npm ci
+    npm run dev
+
+Abra o endereco mostrado no terminal. O padrao deste projeto e:
+
+    http://127.0.0.1:5173
+
+Mantenha esse terminal aberto.
+
+IMPORTANTE SOBRE A LOGO: a imagem fica em
+CineMinha-Dashboard/public/images/cineminha-logo-original.png.
+No arquivo src/components/layout/AppShell.jsx, o src da imagem deve ser:
+
+    <img src="/images/cineminha-logo-original.png" alt="CineMinha" />
+
+Se o codigo estiver usando assetUrl("/images/cineminha-logo-original.png"),
+troque somente o src para o caminho local acima. A logo esta no public da
+propria dashboard, nao na pasta de imagens da API.
+
+--------------------------------------------------
+6. ABRIR O SITE
+--------------------------------------------------
+
+O site fica em:
+
+    CineMinha-site
+
+6.1. No VS Code, abra CineMinha-site/Index.html.
+6.2. Clique com o botao direito no arquivo e escolha "Open with Live Server".
+6.3. O site abrira em um endereco semelhante a:
+
+    http://127.0.0.1:5500/CineMinha-site/Index.html
+
+O arquivo CineMinha-site/api.js ja usa por padrao:
+
+    http://localhost:5266
+
+Isso funciona quando o site e a API estao sendo usados no mesmo computador.
+Nao abra o HTML com duplo clique/file://; use Live Server porque o site precisa
+fazer requisicoes HTTP para a API.
+
+Se a pagina for aberta em outro computador/celular, edite a primeira configuracao
+em CineMinha-site/api.js e substitua localhost pelo IP do computador que executa
+a API, por exemplo:
+
+    window.CINEMINHA_API_URL = "http://192.168.1.25:5266";
+
+Use o IP real obtido com ipconfig no computador que hospeda a API.
+
+--------------------------------------------------
+7. CONFIGURAR E LIGAR O APLICATIVO EXPO
+--------------------------------------------------
+
+O aplicativo fica na pasta:
+
+    CineMinha
+
+7.1. Crie o arquivo .env a partir do exemplo:
+
+    cd C:\Projetos\CineMinha\CineMinha
+    Copy-Item .env.example .env
+
+7.2. Configure o endereco conforme onde o app sera executado:
+
+- Android Emulator no mesmo computador:
+    EXPO_PUBLIC_API_URL=http://10.0.2.2:5266
+
+- Expo Web ou iOS Simulator no mesmo computador:
+    EXPO_PUBLIC_API_URL=http://localhost:5266
+
+- Celular Android fisico:
+    EXPO_PUBLIC_API_URL=http://IP_DO_COMPUTADOR:5266
+
+Para celular fisico, abra outro PowerShell no computador que executa a API e rode:
+
+    ipconfig
+
+Procure o "Endereco IPv4" da conexao Wi-Fi (exemplo: 192.168.1.25).
+Use esse IP no .env do app. O celular e o computador precisam estar na mesma
+rede Wi-Fi. Nao use localhost no celular fisico, pois localhost seria o proprio
+celular.
+
+7.3. Instale dependencias e inicie o Expo:
+
+    npm ci
+    npx expo start -c
+
+Mantenha o terminal aberto. Escaneie o QR Code pelo Expo Go compativel ou
+pressione W para abrir a versao web, se essa opcao estiver disponivel.
+
+Se mudar o .env, pare o Expo com Ctrl+C e execute novamente npx expo start -c.
+
+--------------------------------------------------
+8. ORDEM PARA USAR O SISTEMA NO DIA A DIA
+--------------------------------------------------
+
+1. Ligue o MySQL Server (servico do Windows).
+2. Terminal 1 - API:
+
+    cd C:\Projetos\CineMinha\cineMinha_backend\cineMinha
+    dotnet run --launch-profile http
+
+3. Terminal 2 - Dashboard:
+
+    cd C:\Projetos\CineMinha\CineMinha-Dashboard
+    npm run dev
+
+4. Terminal 3 - Aplicativo (quando for usar):
+
+    cd C:\Projetos\CineMinha\CineMinha
+    npx expo start
+
+5. Site: abra CineMinha-site/Index.html com Live Server no VS Code.
+
+A API precisa permanecer ligada para dashboard, site e app acessarem o banco.
+O MySQL tambem precisa estar ligado. Se fechar o terminal de um servidor, aquele
+servidor para de funcionar.
+
+--------------------------------------------------
+9. TESTE RAPIDO DE INTEGRACAO
+--------------------------------------------------
+
+1. Abra a dashboard e cadastre um filme com status Publicado.
+2. Confira se ele aparece no catalogo do site e do app.
+3. Cadastre ou confira uma sala.
+4. Crie uma sessao futura para o filme, escolhendo sala, horario e precos.
+5. Abra o filme no site ou app e selecione a sessao.
+6. Escolha assentos, informe o nome do cliente e a forma de pagamento.
+7. Confirme o pedido.
+8. Volte a dashboard e confira a aba Ingressos.
+
+A forma de pagamento e registrada para controle, mas esta versao ainda nao faz
+cobranca real de Pix/cartao por um gateway financeiro. Nao use dados de cartao
+reais neste ambiente de desenvolvimento.
+
+--------------------------------------------------
+10. SE QUISER LEVAR OS DADOS DO BANCO ANTIGO
+--------------------------------------------------
+
+ATENCAO: o GitHub guarda os arquivos do projeto, mas NAO guarda automaticamente
+o banco MySQL que esta instalado no computador antigo.
+O cinema.sql cria as tabelas e o cinema-seed.sql insere filmes de demonstracao;
+eles nao transportam todas as compras, sessoes e alteracoes feitas depois.
+
+No computador ANTIGO, abra PowerShell e faca um backup:
+
+    mysqldump -u root -p --databases cinema --routines --triggers --events > cinema-backup.sql
+
+Digite a senha do MySQL quando solicitado. Copie cinema-backup.sql para o novo
+computador por um meio seguro. NAO coloque esse backup no GitHub.
+
+No computador NOVO, depois de instalar MySQL, abra PowerShell na pasta do backup:
+
+    mysql -u root -p < cinema-backup.sql
+
+Se o redirecionamento do PowerShell nao funcionar, abra o MySQL Command Line
+Client e use:
+
+    SOURCE C:/CAMINHO/DO/ARQUIVO/cinema-backup.sql;
+
+Se o banco antigo usava imagens enviadas pela dashboard, copie tambem a pasta:
+
+    cineMinha_backend/cineMinha/wwwroot/uploads
+
+para o mesmo caminho no novo computador. Essa pasta contem uploads dinamicos e
+nao e enviada ao GitHub pelo .gitignore. As imagens padrao em wwwroot/images
+fazem parte do projeto e sao versionadas normalmente.
+
+--------------------------------------------------
+11. PROBLEMAS COMUNS
+--------------------------------------------------
+
+API nao inicia:
+- Confira se instalou .NET SDK 10 (dotnet --version).
+- Confira se a porta 5266 nao esta sendo usada.
+
+Access denied no MySQL:
+- Confira o servico MySQL.
+- Confira user, password, database e port no appsettings.Development.json.
+
+Dashboard nao carrega dados:
+- Confira se a API responde em http://localhost:5266/health.
+- Confira VITE_API_URL no arquivo CineMinha-Dashboard/.env.
+
+Site nao carrega filmes:
+- Confira se esta usando Live Server.
+- Confira o endereco em CineMinha-site/api.js.
+- Confira se a API esta ligada.
+
+App nao conecta:
+- Android Emulator: use 10.0.2.2, nao localhost.
+- Celular fisico: use o IPv4 do computador e a mesma rede Wi-Fi.
+- Confira o arquivo CineMinha/.env e reinicie o Expo.
+- Se o Windows Firewall perguntar, permita o acesso na rede privada.
+
+Erro de porta/firewall em outro dispositivo:
+- A API usa a porta TCP 5266 e o perfil http escuta em 0.0.0.0.
+- Autorize a porta 5266 na rede privada do Firewall do Windows, se necessario.
+- Nao exponha essa API diretamente na internet sem antes configurar HTTPS,
+  autenticacao/autorizacao, CORS restrito e protecao das rotas administrativas.
+
+--------------------------------------------------
+12. SEGURANCA ANTES DE ENVIAR AO GITHUB
+--------------------------------------------------
+
+- Deixe a senha em appsettings.Development.json, nunca no appsettings.json.
+- Nao envie .env. Envie somente .env.example, que nao contem segredos.
+- Nao envie cinema-backup.sql nem exportacoes reais de clientes/compras.
+- Nao envie node_modules, dist, bin, obj ou .expo.
+- Antes de fazer commit, rode git status e confira os arquivos que serao enviados.
+- Se uma senha real ja tiver sido publicada no GitHub, apenas apagar o texto nao
+  basta: troque a senha comprometida e remova o segredo do historico do repositorio.
+
+FIM DO GUIA

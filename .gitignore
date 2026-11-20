@@ -1,0 +1,57 @@
+# =============================================================
+# CineMinha - arquivos locais, segredos e arquivos gerados
+# Este arquivo deve ficar na raiz do repositório.
+# =============================================================
+
+# Configurações locais e credenciais (mantenha .env.example no Git)
+**/.env
+**/.env.*
+!**/.env.example
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets.json
+
+# Dependências JavaScript / Node / Expo
+**/node_modules/
+**/dist/
+**/coverage/
+**/.expo/
+**/.expo-shared/
+**/web-build/
+**/.next/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+**/*.tsbuildinfo
+
+# Pastas e arquivos gerados pelo .NET / Visual Studio
+**/bin/
+**/obj/
+**/TestResults/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ferramentas e editores
+.vscode/
+.idea/
+
+# Arquivos temporários do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Uploads feitos em tempo de execução pela API.
+# Se precisar transferir esses arquivos para outra máquina, faça backup separado.
+/cineMinha_backend/cineMinha/wwwroot/uploads/*
+!/cineMinha_backend/cineMinha/wwwroot/uploads/.gitkeep
+
+# Backups locais de banco de dados (NÃO enviar ao GitHub)
+*-backup.sql
+*backup*.sql
+*.sql.bak

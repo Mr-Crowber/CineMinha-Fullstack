@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineMinha</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+
+    <a href="Index.html" class="logo-link"> <img src="img/CineMinha.png" alt="CineMinha" class="logo"> </a>
+    <nav>
+        <a href="#cartaz">Em Cartaz</a>
+        <div class="nav-actions">
+            <div class="pesquisa">
+                <button id="btn-pesquisa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+                            <line x1="16" y1="16" x2="22" y2="22" stroke="white" stroke-width="2"/></svg>
+                </button>
+                <input type="text" id="campo-pesquisa" placeholder="Buscar filmes...">
+                <div id="sugestoes"></div>
+            </div>
+            <a href="cadastro.html" class="cadastro">Cadastrar</a>
+        </div>
+    </nav>
+
+</header>
+
+<div id="banner">
+    <div class="banner-bg"></div> 
+    <div class="banner-info">
+        <h2>FILMES EM DESTAQUE</h2>
+        <p><a id="banner-link" href="#">Título</a></p>
+    </div>
+</div>
+
+    <!-- ----------------Cards dos filmes------------------- -->
+<section class="filmes" id="cartaz">
+
+    <br><h2>Em Cartaz</h2>
+        <div class="filmes-box">
+            <div class="fundo-box" aria-hidden="true"></div>
+            <div class="grid" id="lista-filmes"> </div>
+        </div>
+</section>
+
+<footer>
+    <p>© 2026 CineMinha - Roberto L. Nieli</p>
+</footer>
+
+<script defer src="api.js"></script>
+<script defer src="JS/script.js"></script>
+</body>
+</html>
